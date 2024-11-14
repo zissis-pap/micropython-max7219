@@ -1,6 +1,6 @@
 # MicroPython MAX7219 8x8 LED Matrix
 
-A MicroPython library for the MAX7219 8x8 LED matrix driver, SPI interface, supports cascading and uses [framebuf](http://docs.micropython.org/en/latest/pyboard/library/framebuf.html)
+A MicroPython library for the MAX7219 8x8 LED matrix driver, SPI interface, supports cascading and uses [framebuf](http://docs.micropython.org/en/latest/pyboard/library/framebuf.html). I've also defined a simple 5x7 font for characters as binary arrays. This way, a 32x8 display and any display bigger than that should be able to fit more characters and scroll smoothly across the screen.
 
 ## PyBoard Examples
 
@@ -12,7 +12,6 @@ from machine import Pin, SPI
 spi = SPI(1)
 display = max7219.Matrix8x8(spi, Pin('X5'), 1)
 display.text('1',0,0,1)
-display.show()
 ```
 
 **Chain of 4x 8x8 LED Matrices**
@@ -24,7 +23,6 @@ from machine import Pin, SPI
 spi = SPI(1)
 display = max7219.Matrix8x8(spi, Pin('X5'), 4)
 display.text('1234',0,0,1)
-display.show()
 ```
 
 **Chain of 8x 8x8 LED Matrices**
@@ -36,7 +34,19 @@ from machine import Pin, SPI
 spi = SPI(1)
 display = max7219.Matrix8x8(spi, Pin('X5'), 8)
 display.text('12345678',0,0,1)
-display.show()
+```
+
+**Set display brightness and demonstrate option to fit more characters in a 32x8 display using 5x7 fonts**
+```python
+from max7219 import Matrix8x8
+from machine import Pin, SPI
+
+spi = SPI(1)
+ss = Pin(10, Pin.OUT)
+display = Matrix8x8(spi, ss, 4)
+
+display.brightness(15)
+display.text('12:34', 0, 0, 1) 
 ```
 
 **Framebuf shapes and text**
@@ -84,7 +94,7 @@ display.show()
 
 ## ESP32 Examples
 
-Default baud rate of 80Mhz was introducing errors, dropped from 10Mhz and it works consistently.
+Default baud rate of 80Mhz was introducing errors, perhaps due to low quality cables, dropped from 10Mhz and it works consistently.
 
 ```python
 import max7219
@@ -94,6 +104,22 @@ ss = Pin(5, Pin.OUT)
 display = max7219.Matrix8x8(spi, ss, 4)
 display.text('1234',0,0,1)
 display.show()
+```
+
+## Scroll Example
+
+You can use the LED matrix display to scroll text from right to left.
+```python
+from max7219 import Matrix8x8
+from machine import Pin, SPI
+
+spi = SPI(1)
+ss = Pin(10, Pin.OUT)
+display = Matrix8x8(spi, ss, 4)
+
+display.brightness(15) # set brightness from 1 (min) to 15 (max)
+
+display.scroll('This text scrolls at selected speed', 40) # input 'text' and delay time in ms
 ```
 
 ## Connections
@@ -121,6 +147,14 @@ GND              | GND
 D2 MOSI          | DIN
 D5 CS            | CS
 D4 SCK           | CLK
+
+ESP32-C3         | max7219 8x8 LED Matrix
+---------------- | ----------------------
+5V               | VCC 
+GND              | GND
+D7 MOSI          | DIN
+D10 CS           | CS
+D6 SCK           | CLK
 
 ## Links
 
